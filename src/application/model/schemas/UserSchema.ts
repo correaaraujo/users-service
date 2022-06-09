@@ -1,7 +1,7 @@
-import Joi from 'joi'
+import { celebrate, Joi, Segments } from 'celebrate'
 
-export const UserSchema = () =>
-    Joi.object({
+export const UserSchema = celebrate({
+    [Segments.BODY]: Joi.object().keys({
         name: Joi.string().required(),
         userName: Joi.string()
             .alphanum()
@@ -14,3 +14,4 @@ export const UserSchema = () =>
         type: Joi.string().required(),
         profiles: Joi.array().items(Joi.string().valid('INVESTOR', 'ADMIN'))
     })
+}, { abortEarly: false })

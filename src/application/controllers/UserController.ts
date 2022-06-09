@@ -1,13 +1,12 @@
 import { UserRequest } from './../model/UserRequest';
 import { UserSchema } from './../model/schemas/UserSchema';
+
 import { Router } from "express";
 import { autoInjectable, inject, injectable, registry } from "tsyringe";
-import IUserService from "@domain/services/UserService"
 import UserService from "@domain/services/UserService";
-import { serialize } from "v8";
 import Logger from "@infra/Logger/Logger";
-import ILogger from "@infra/Logger/ILogger";
-import User from '@domain/model/User';
+import { celebrate, Joi, Segments, errors } from 'celebrate'
+
 
 @autoInjectable()
 export default class UserController {
@@ -21,27 +20,14 @@ export default class UserController {
     }
 
     init = () => {
-        this.addSchemaValidator()
         this.router.get("/:id", this.findById);
         this.router.get("/", this.findAll);
-        this.router.post("/", this.create);
+        this.router.post("/", UserSchema, this.create);
         this.router.put("/", this.update);
         this.router.patch("/:id", this.update);
         this.router.delete("/:id", this.findAll);
 
     }
-    addSchemaValidator = async () =>
-        this.router.use(
-            async (req, res, next) => {
-                await UserSchema().validateAsync(req.body)
-                    .then(data => {
-                        this.logger.info(data)
-                        next()
-                    }).catch(ex => {
-                        this.logger.warn(ex)
-                        res.status(400).send(ex.message)
-                    })
-            })
 
     create = async (req, res, next) => {
         let data = new UserRequest(req.body).toDomain()

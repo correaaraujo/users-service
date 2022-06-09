@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { IUserRepository } from '@infra/repository/interfaces/IUserRepository';
 
 import 'reflect-metadata'
-import './shared/container/RegisterDependencyInjections'
+import './shared/container/DependencyInjection'
 import { Server as HttpServer } from 'node:http'
 import { container } from 'tsyringe'
 import "reflect-metadata"
@@ -13,17 +13,15 @@ import { UserRepository } from '@infra/repository/UserRepository';
 import Server from '@application/server'
 import Logger from '@infra/Logger/Logger'
 import UserController from '@application/controllers/UserController'
+import DependencyInjection from '@shared/container/DependencyInjection'
 
 const port = process.env.PORT
 const logger = container.resolve(Logger)
 
+
 void (async (): Promise<void> => {
     try {
-        container.register<UserController>(UserController, { useClass: UserController })
-        container.register("IUserRepository", { useClass: UserRepository })
-        container.register<UserService>(UserService, { useClass: UserService })
-
-        container.register<Server>(Server, { useClass: Server })
+        await DependencyInjection.setup()
         const server: HttpServer = container.resolve<Server>(Server).app.listen(port, () => {
             logger.info(`Server running on port ${port}!`)
         })

@@ -1,3 +1,4 @@
+import { errors } from 'celebrate';
 
 import express from 'express'
 import { Server as HttpServer } from 'node:http'
@@ -14,7 +15,6 @@ import morgan from "morgan";
 import ExampleController from "./controllers/UserController";
 import { inject, injectable } from "tsyringe";
 import UserController from './controllers/UserController'
-import bodyParser from 'body-parser'
 
 @injectable()
 export default class Server {
@@ -30,9 +30,8 @@ export default class Server {
         this.setupHttpLogger()
         this.setupRoutes()
         this.setupUnhandledOperations()
+        this.app.use(errors())
     }
-
-
 
     private readonly setupHttpLogger = (): void => {
         this.app.use(HttpLogger)
